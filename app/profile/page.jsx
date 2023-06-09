@@ -2,15 +2,12 @@
 
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
 
 import Profile from "@components/Profile"
 
 const MyProfile = () => {
-    const {data:session} = useSession()
-    const router = useRouter()
+    const { data: session } = useSession()
     const [posts, setPosts] = useState([])
-
     const handleDelete = async (post) => {
         const hasConfirmed = confirm("Are you sure you want to delete this prompt?")
 
@@ -33,23 +30,30 @@ const MyProfile = () => {
     }
 
     useEffect(() => {
+        const controller = new AbortController()
+        const signal = controller.signal
         const fetchPosts = async () => {
-          const resp = await fetch(`/api/users/${session?.user.id}/posts`)
-          const data = await resp.json()
-          setPosts(data)
-        } 
-        if (session?.user.id) fetchPosts()
-      }, [])
+            const resp = await fetch(`/api/users/${session?.user.id}/posts`, { signal })
+            const data = await resp.json()
+            setPosts(data)
+        }
 
-  return (
-    <Profile 
-        name="My"
-        desc="Welcome to your personalized profile page"
-        data={posts}
-        handleEdit={handleEdit}
-        handleDelete={handleDelete}
-    />
-  )
+        if (session?.user.id) fetchPosts()
+
+        return () => {
+            controller.abort()
+        }
+    }, [])
+
+    return (
+        <Profile
+            name="My"
+            desc="Welcome to your personalized profile page"
+            data={posts}
+            handleEdit={handleEdit}
+            handleDelete={handleDelete}
+        />
+    )
 }
 
 export default MyProfile
