@@ -49,7 +49,7 @@ const Feed = () => {
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const resp = await fetch("/api/prompt", {next: {revalidate: 30}})
+      const resp = await fetch("/api/prompt", {next: {revalidate: 10}})
       const data = await resp.json()
       setPosts(data)
     }

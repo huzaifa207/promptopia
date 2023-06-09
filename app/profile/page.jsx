@@ -33,6 +33,7 @@ const MyProfile = () => {
         const controller = new AbortController()
         const signal = controller.signal
         const fetchPosts = async () => {
+            console.log(session?.user.id);
             const resp = await fetch(`/api/users/${session?.user.id}/posts`, { signal })
             const data = await resp.json()
             setPosts(data)
