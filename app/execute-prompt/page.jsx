@@ -35,9 +35,10 @@ const ExecutePrompt = () => {
                 })
             })
         const data = await resp.json()
+        console.log(data);
         setPost({
             ...post,
-            result: data.result.result
+            result: data.result
         })
     }
 

@@ -32,7 +32,7 @@ export const POST = async (req) => {
             result: result
         }
 
-        return new Response(JSON.stringify({ result: responseData }), { status: 200 })
+        return new Response(JSON.stringify(responseData), { status: 200 })
     } catch (e) {
         console.log(e);
         return new Response("Failed to fetch all prompts!", { status: 500 })
