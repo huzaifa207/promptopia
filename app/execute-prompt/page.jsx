@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useSearchParams } from "next/navigation"
 import Image from "next/image"
+import axios from "axios"
 
 
 const ExecutePrompt = () => {
@@ -26,19 +27,15 @@ const ExecutePrompt = () => {
     }
 
     const getPromptDetails = async () => {
-        const resp = await fetch(`/api/prompt/execute`,
-            {
-                method: "POST",
-                body: JSON.stringify({
-                    prompt: prompt,
-                    systemPrompt: post.systemPrompt != "" ? post.systemPrompt : "You are a helpful assistant."
-                })
+        const resp = await axios.post(`/api/prompt/execute`,
+        {
+                timeout: 60000,
+                prompt: prompt,
+                systemPrompt: post.systemPrompt != "" ? post.systemPrompt : "You are a helpful assistant."
             })
-        const data = await resp.json()
-        console.log(data);
         setPost({
             ...post,
-            result: data.result
+            result: resp.data.result
         })
     }
 

@@ -1,32 +1,31 @@
+import axios from "axios"
+
 export const POST = async (req) => {
     const {prompt, systemPrompt} = await req.json()
 
+    const openai = axios.create({
+        baseURL: "https://api.openai.com/v1",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${process.env.CHATGPT_KEY}`,
+        },
+      });
+
     try {
-        const apiRequestBody = {
-            model: "gpt-3.5-turbo",
-            messages: [
-                {
-                    role: "system",
-                    content: systemPrompt
-                },
-                {
-                    role: "user",
-                    content: prompt
-                }]
-        }
-
-        const resp = await fetch("https://api.openai.com/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${process.env.CHATGPT_KEY}`,
-                "Content-Type": "application/json"
+        const messages = [
+            {
+                role: "system",
+                content: systemPrompt
             },
-            body: JSON.stringify(apiRequestBody)
+            {
+                role: "user",
+                content: prompt
+            }]
+        const resp = await openai.post("/chat/completions", {
+            model: "gpt-3.5-turbo",
+            messages,
         })
-
-
-        const data = await resp.json()
-        const result = data.choices[0].message.content
+        const result = resp.data.choices[0].message.content
 
         const responseData = {
             result: result
