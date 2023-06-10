@@ -9,7 +9,6 @@ const MyProfile = () => {
     const { data: session } = useSession({
         required: true,
     })
-    console.log(session, 'test');
     const [posts, setPosts] = useState([])
     const handleDelete = async (post) => {
         const hasConfirmed = confirm("Are you sure you want to delete this prompt?")
@@ -33,23 +32,24 @@ const MyProfile = () => {
     }
 
     useEffect(() => {
-        // const controller = new AbortController()
-        // const signal = controller.signal
+        const controller = new AbortController()
+        const signal = controller.signal
         const fetchPosts = async () => {
             console.log(session?.user.id);
-            const resp = await fetch(`/api/users/${session?.user.id}/posts`)
+            const resp = await fetch(`/api/users/${session?.user.id}/posts`, {signal})
             const data = await resp.json()
             console.log(data);
             setPosts(data)
         }
-        console.log(session?.user.id, "test1");
 
-        if (session?.user.id) fetchPosts()
+        if (session?.user.id) { 
+            fetchPosts()
+        }
 
-        // return () => {
-        //     controller.abort()
-        // }
-    }, [])
+        return () => {
+            controller.abort()
+        }
+    }, [session])
 
     return (
         <Profile
