@@ -6,7 +6,10 @@ import { useSession } from "next-auth/react"
 import Profile from "@components/Profile"
 
 const MyProfile = () => {
-    const { data: session } = useSession()
+    const { data: session } = useSession({
+        required: true,
+    })
+    console.log(session);
     const [posts, setPosts] = useState([])
     const handleDelete = async (post) => {
         const hasConfirmed = confirm("Are you sure you want to delete this prompt?")
@@ -30,21 +33,22 @@ const MyProfile = () => {
     }
 
     useEffect(() => {
-        const controller = new AbortController()
-        const signal = controller.signal
+        // const controller = new AbortController()
+        // const signal = controller.signal
         const fetchPosts = async () => {
             console.log(session?.user.id);
-            const resp = await fetch(`/api/users/${session?.user.id}/posts`, { signal })
+            const resp = await fetch(`/api/users/${session?.user.id}/posts`)
             const data = await resp.json()
+            console.log(data);
             setPosts(data)
         }
         console.log(session?.user.id);
 
         if (session?.user.id) fetchPosts()
 
-        return () => {
-            controller.abort()
-        }
+        // return () => {
+        //     controller.abort()
+        // }
     }, [])
 
     return (
