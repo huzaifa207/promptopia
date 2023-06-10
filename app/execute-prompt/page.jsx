@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { useSearchParams } from "next/navigation"
 import Image from "next/image"
-import axios from "axios"
 
 
 const ExecutePrompt = () => {
@@ -11,32 +10,48 @@ const ExecutePrompt = () => {
     const prompt = searchParams.get('prompt')
     const tag = searchParams.get('tag')
     const [loading, setLoading] = useState(false)
-    const [post, setPost] = useState({
-        prompt: prompt,
-        tag: tag,
-        systemPrompt: "",
-        result: ""
-    })
-
+    const [systemPrompt, setSystemPrompt] = useState("")
+    const [response, setResponse] = useState("")
+    
     const handleSubmit = async (e) => {
         e.preventDefault()
-
+        
         setLoading(true)
-        await getPromptDetails()
-        setLoading(false)
-    }
-
-    const getPromptDetails = async () => {
-        const resp = await axios.post(`/api/prompt/execute`,
-        {
-                timeout: 60000,
-                prompt: prompt,
-                systemPrompt: post.systemPrompt != "" ? post.systemPrompt : "You are a helpful assistant."
+        setResponse("")
+        const resp = await fetch(`/api/prompt/execute`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    systemPrompt: systemPrompt != "" ? systemPrompt : "You are a helpful assistant."
+                })
             })
-        setPost({
-            ...post,
-            result: resp.data.result
-        })
+
+        if (!resp.ok) {
+            throw new Error(resp.statusText)
+        }
+
+        const data = resp.body
+
+        if (!data) {
+            return
+        }
+        const reader = data.getReader()
+        const decoder = new TextDecoder()
+        let done = false
+
+        while (!done) {
+            const {value, done: doneReading} = await reader.read()
+            done = doneReading
+            const chunkValue = decoder.decode(value)
+
+            setResponse(prev => prev + chunkValue)
+            
+        }
+        setLoading(false)
     }
 
     return (
@@ -44,8 +59,8 @@ const ExecutePrompt = () => {
             <h1 className="head_text text-left">
                 <span className="blue_gradient">Execute Prompt</span>
             </h1>
-            <p className="desc text-left">{post.prompt}</p>
-            <p className="font-inter text-sm blue_gradient">#{post.tag}</p>
+            <p className="desc text-left">{prompt}</p>
+            <p className="font-inter text-sm blue_gradient">#{tag}</p>
             <form
                 onSubmit={handleSubmit}
                 className="my-5"
@@ -56,8 +71,8 @@ const ExecutePrompt = () => {
                         <span className="font-normal">(Explain like a professional software engineer, Explain like a 10 year old, Explain like a pirate)</span>
                     </span>
                     <input
-                        value={post.systemPrompt}
-                        onChange={(e) => setPost({ ...post, systemPrompt: e.target.value })}
+                        value={systemPrompt}
+                        onChange={(e) => setSystemPrompt(e.target.value)}
                         placeholder="Enter a system message for ChatGPT"
                         className="form_input"
                     />
@@ -83,10 +98,10 @@ const ExecutePrompt = () => {
                         />
                     </div>
                 ) : (
-                    post.result ? (
+                    response ? (
                         <div className="w-full glassmorphism">
                             <pre className="pre">
-                                {post.result}
+                                {response}
                             </pre>
                         </div>
                     ) : (
