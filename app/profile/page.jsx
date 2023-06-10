@@ -9,7 +9,7 @@ const MyProfile = () => {
     const { data: session } = useSession({
         required: true,
     })
-    console.log(session);
+    console.log(session, 'test');
     const [posts, setPosts] = useState([])
     const handleDelete = async (post) => {
         const hasConfirmed = confirm("Are you sure you want to delete this prompt?")
@@ -42,7 +42,7 @@ const MyProfile = () => {
             console.log(data);
             setPosts(data)
         }
-        console.log(session?.user.id);
+        console.log(session?.user.id, "test1");
 
         if (session?.user.id) fetchPosts()
 
