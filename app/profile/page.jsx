@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 
 import Profile from "@components/Profile"
 
@@ -9,6 +10,7 @@ const MyProfile = () => {
     const { data: session } = useSession({
         required: true,
     })
+    const router = useRouter()
     const [posts, setPosts] = useState([])
     const handleDelete = async (post) => {
         const hasConfirmed = confirm("Are you sure you want to delete this prompt?")
