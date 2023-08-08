@@ -13,7 +13,7 @@
     "bcrypt": "^5.1.0",
     "eventsource-parser": "^1.0.0",
     "mongodb": "^5.5.0",
-    "mongoose": "^7.2.2",
+    "mongoose": "^7.3.3",
     "next": "13.4.4",
     "next-auth": "^4.22.1",
     "openai": "^3.2.1",
